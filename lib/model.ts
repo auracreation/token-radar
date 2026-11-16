@@ -1,4 +1,4 @@
-// Token Radar, model radar-2: a sealed snapshot in, a ranked board of pre-token protocols out.
+// Token Radar, model radar-2.1: a sealed snapshot in, a ranked board of pre-token protocols out.
 //
 // Scope first. A protocol is pre-token when its snapshot record carries no token at all: no
 // market cap, no CoinGecko id, no symbol. The board ranks every protocol on the snapshot's

@@ -357,7 +357,7 @@
         'implied = round( tvl_usd x ' + DATA.global_multiple + ' x (1 + clamp(change_7d, ' + m.growth_floor + ', ' + m.growth_cap + ') / 100 x ' + m.growth_weight + ') x (' + m.maturity_floor + ' + min(age_days, ' + m.maturity_days + ') / ' + m.maturity_days + ' x ' + m.maturity_range + ') )'
       ),
       el('p', { class: 'sub', text: 'Why one multiple for every category, not one per category? That was tested, not assumed. Fitting a multiple per category and testing it leave-one-out over the ' + mk.live_n + ' live protocols ranks them worse (Spearman 0.38, median error 92.5%) than the single market median (0.40, 88.3%), and stronger shrinkage never recovers the gap — so the snapshot\u2019s own data says categories do not price a TVL dollar differently, and the model uses one multiple for all of them.' }),
-      el('p', { class: 'sub', text: 'TVL and seven-day growth come from the snapshot. Age is the time since the protocol was first listed, the best record of how long it has run with no token; an unlisted age uses ' + m.unknown_age_days + ' days. The early radar is every pre-token protocol below the watchlist floor that passes the same exclusion the watchlist uses — no wrapped, staked or bridged product, no versioned pool, no exchange product — and the live-token protocols are set aside with their market caps shown.' })
+      el('p', { class: 'sub', text: 'TVL and seven-day growth come from the snapshot. Age is the time since the protocol was first listed, the best record of how long it has run with no token; an unlisted age uses ' + m.unknown_age_days + ' days. The growth and maturity terms are not decorative: against a pure TVL order, 48 of the 178 rows move at least 10 places (largest move 29), so momentum and tenure do reorder the board. The early radar is every pre-token protocol below the watchlist floor that passes the same exclusion the watchlist uses — no wrapped, staked or bridged product, no versioned pool, no exchange product — and the live-token protocols are set aside with their market caps shown.' })
     );
   }
 
@@ -366,7 +366,7 @@
     var sel = el('select', { id: 'sandbox-pick', 'aria-label': 'Protocol to test' },
       picks.map(function (r) { return el('option', { value: r.slug, text: '#' + r.rank + ' ' + r.name }); })
     );
-    var growth = el('input', { type: 'range', id: 'sandbox-growth', min: '-60', max: '120', step: '1', value: '0', 'aria-label': 'Seven-day growth in per cent' });
+    var growth = el('input', { type: 'range', id: 'sandbox-growth', min: '-60', max: '120', step: '0.01', value: '0', 'aria-label': 'Seven-day growth in per cent' });
     var age = el('input', { type: 'range', id: 'sandbox-age', min: '0', max: '1095', step: '1', value: '365', 'aria-label': 'Age in days' });
     var out = el('div', { class: 'equation' });
     function recompute() {
@@ -389,7 +389,9 @@
     function pick() {
       var row = DATA.rows.filter(function (r) { return r.slug === sel.value; })[0];
       if (!row) return;
-      growth.value = String(row.change_7d === null ? 0 : Math.round(row.change_7d));
+      // The sliders start at the row's own figures, so the scenario value equals the board
+      // value before anything is moved; rounding them would disagree with the board.
+      growth.value = String(row.change_7d === null ? 0 : row.change_7d);
       age.value = String(row.age_days === null ? DATA.model.unknown_age_days : row.age_days);
       recompute();
     }
